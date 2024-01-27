@@ -13,7 +13,7 @@
 #include <signal.h>
 #include "libft/libft.h"
 
-int	g_by[8];
+char	g_by[8];
 
 void	print_byte(void)
 {
@@ -27,7 +27,7 @@ void	print_byte(void)
 	while (j < 8)
 	{
 		res += g_by[j] * k;
-		k = k / 2;
+		k = k >> 1;
 		j++;
 	}
 	ft_putchar_fd(res, 1);
@@ -37,16 +37,10 @@ void	recieve_signal(int signal)
 {
 	static int	i = 0;
 
+	g_by[i] = 0;
 	if (signal == SIGUSR1)
-	{
 		g_by[i] = 1;
-		i++;
-	}
-	else if (signal == SIGUSR2)
-	{
-		g_by[i] = 0;
-		i++;
-	}
+	i++;
 	if (i == 8)
 	{
 		print_byte();
@@ -64,7 +58,7 @@ int	main(int argc, char **argv)
 	pid = getpid();
 	if (!pid)
 		write(1, "error\n", 6);
-	ft_printf("Format: ./client %d \"write the message>\"\n", pid);
+	ft_printf("Format: ./client %d \"write the message\"\n", pid);
 	while (argc == 1)
 	{
 		signal(SIGUSR1, recieve_signal);
