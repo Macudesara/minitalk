@@ -6,24 +6,29 @@
 #    By: macudesarasqueta <macudesarasqueta@stud    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/05/30 13:28:10 by mde-sara          #+#    #+#              #
-#    Updated: 2024/01/24 15:36:46 by mde-sara         ###   ########.fr        #
+#    Updated: 2024/01/27 20:37:18 by macudesaras      ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
+# Names
 NAME = minitalk
-
+MKFL = Makefile
 SERVER = server
 CLIENT = client
 SERVER_BONUS = server_bonus
 CLIENT_BONUS = client_bonus
 
+# Comandos
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
+DFLAGS = -MMD -MP -MT $@
 RM = rm -rf
 
+# Paths
 LIBFT_PATH = ./libft
 LIBFT = $(LIBFT_PATH)/libft.a
 
+# Files
 SRCS_SERVER = server.c
 OBJ_SERVER = $(SRCS_SERVER:.c=.o)
 
@@ -36,46 +41,48 @@ OBJ_SERVER_BONUS = $(SRCS_SERVER_BONUS:.c=.o)
 SRCS_CLIENT_BONUS = client_bonus.c
 OBJ_CLIENT_BONUS = $(SRCS_CLIENT_BONUS:.c=.o)
 
-.PHONY: all clean fclean re bonus
+all: makelib $(NAME)
 
-all: $(SERVER) $(CLIENT)
+makelib:
+	@$(MAKE) -C $(LIBFT_PATH)
+
+$(NAME): $(SERVER) $(CLIENT)
 
 $(LIBFT):
-	$(MAKE) -s -C $(LIBFT_PATH)
+	$(MAKE) -C $(LIBFT_PATH)
 
-$(SERVER): $(OBJ_SERVER) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJ_SERVER) -o $@ -L$(LIBFT_PATH) -lft
+$(SERVER): $(OBJ_SERVER) 
+	$(CC) $(CFLAGS) $(OBJ_SERVER) -L $(LIBFT_PATH) -lft -o $(SERVER)
 
-$(CLIENT): $(OBJ_CLIENT) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJ_CLIENT) -o $@ -L$(LIBFT_PATH) -lft
+$(CLIENT): $(OBJ_CLIENT)
+	$(CC) $(CFLAGS) $(OBJ_CLIENT) -L $(LIBFT_PATH) -lft -o $(CLIENT)
 
 $(SERVER_BONUS): $(OBJ_SERVER_BONUS) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJ_SERVER_BONUS) -o $@ -L$(LIBFT_PATH) -lft
+	$(CC) $(CFLAGS) $(OBJ_SERVER_BONUS) -L $(LIBFT_PATH) -lft -o $(SERVER_BONUS)
 
 $(CLIENT_BONUS): $(OBJ_CLIENT_BONUS) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJ_CLIENT_BONUS) -o $@ -L$(LIBFT_PATH) -lft
+	$(CC) $(CFLAGS) $(OBJ_CLIENT_BONUS) -L $(LIBFT_PATH) -lft -o $(CLIENT_BONUS)
 
+# Regla de compilación de archivos fuente a objetos
+%.o: %.c $(MKFL)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Dependencias automáticas
 $(OBJ_SERVER): $(SRCS_SERVER)
-	$(CC) $(CFLAGS) -c $< -o $@
-
 $(OBJ_CLIENT): $(SRCS_CLIENT)
-	$(CC) $(CFLAGS) -c $< -o $@
-
 $(OBJ_SERVER_BONUS): $(SRCS_SERVER_BONUS)
-	$(CC) $(CFLAGS) -c $< -o $@
-
 $(OBJ_CLIENT_BONUS): $(SRCS_CLIENT_BONUS)
-	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(MAKE) clean -s -C $(LIBFT_PATH)
-	$(RM) $(OBJ_SERVER) $(OBJ_CLIENT) $(OBJ_SERVER_BONUS) $(OBJ_CLIENT_BONUS)
+	@$(MAKE) clean -C $(LIBFT_PATH)
+	@$(RM) $(OBJ_SERVER) $(OBJ_CLIENT) $(OBJ_SERVER_BONUS) $(OBJ_CLIENT_BONUS)
 
 fclean: clean
-	$(MAKE) fclean -s -C $(LIBFT_PATH)
-	$(RM) $(SERVER) $(CLIENT) $(SERVER_BONUS) $(CLIENT_BONUS)
-	@echo "Clean Client and Servidor"
+	@$(MAKE) fclean -C $(LIBFT_PATH)
+	@$(RM) $(SERVER) $(CLIENT)
 
 re: fclean all
 
 bonus: $(SERVER_BONUS) $(CLIENT_BONUS)
+
+.PHONY: all clean fclean re bonus
